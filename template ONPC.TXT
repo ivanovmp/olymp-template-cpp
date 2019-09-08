@@ -3,6 +3,8 @@
 #pragma gcc target("sse4")
 #define _CRT_SECURE_NO_WARNINGS
 #define _USE_MATH_DEFINES
+#define FAST_IO ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0); cerr.tie(0)
+#define FAST_BUILTINS
 #define mp make_pair
 #define gl getline
 #define pb push_back
@@ -18,6 +20,7 @@
 #include <vector>
 #include <iomanip>
 #include <algorithm>
+#include <nmmintrin.h>
 #include <set>
 #include <map>
 #include <unordered_set>
@@ -34,6 +37,7 @@
 #include <cstring>
 using namespace std;
 typedef long long ll;
+typedef unsigned long long ul;
 typedef long double ld;
 typedef pair<ll, ll> pll;
 typedef pair<int, int> pii;
@@ -109,14 +113,14 @@ template<typename A>
 vector<A>& operator++(vector<A>& a)
 {
 	for (auto it = a.begin(); it != a.end(); ++it)
-		++*it;
+		++* it;
 	return a;
 }
 template<typename A>
 vector<A>& operator--(vector<A>& a)
 {
 	for (auto it = a.begin(); it != a.end(); ++it)
-		--*it;
+		--* it;
 	return a;
 }
 template<typename A, typename B>
@@ -961,8 +965,149 @@ int square_root_modulo(const int& c, const int& n)
 	}
 	return a;
 }
-#ifdef ONPC
-int __builtin_popcount(int x)
+
+#ifdef FAST_BUILTINS
+namespace BGF // builtin gnu c++ functions
+{
+	inline int cntd(unsigned x)
+	{
+		int ans = 0;
+		while (x)
+		{
+			if (x & 1)
+				++ans;
+			x >>= 1;
+		}
+		return ans;
+	}
+	inline ll cntdl(ul x)
+	{
+		ll ans = 0;
+		while (x)
+		{
+			if (x & 1)
+				++ans;
+			x >>= 1;
+		}
+		return ans;
+	}
+	inline int clzd(unsigned x)
+	{
+		int ans = 32;
+		while (x)
+		{
+			--ans;
+			x >>= 1;
+		}
+		return ans;
+	}
+	inline ll clzdl(ul x)
+	{
+		ll ans = 64;
+		while (x)
+		{
+			--ans;
+			x >>= 1;
+		}
+		return ans;
+	}
+	inline int ctzd(unsigned x)
+	{
+		if (x == 0)
+			return 32;
+		int ans = 0;
+		while ((x & 1) == 0)
+		{
+			++ans;
+			x >>= 1;
+		}
+		return ans;
+	}
+	inline ll ctzdl(ul x)
+	{
+		if (x == 0)
+			return 64;
+		ll ans = 0;
+		while ((x & 1) == 0)
+		{
+			++ans;
+			x >>= 1;
+		}
+		return ans;
+	}
+	const unsigned BHC = 65535u;
+	const ul BHCL = 65535ul;
+	const unsigned BHN = 65536u;
+	const unsigned BHL = 16u;
+	const unsigned LH = 4294901760u;
+	const unsigned RH = 65535u;
+	const ul BHLL1 = 16ul;
+	const ul BHLL2 = 32ul;
+	const ul BHLL3 = 48ul;
+	const ul LHL = 18446744069414584320ul;
+	const ul RHL = 4294967295ul;
+	int CNT[BHN];
+	int CLZ[BHN];
+	int CTZ[BHN];
+	inline void initialize()
+	{
+		CNT[0] = 0;
+		CLZ[0] = BHL + BHL;
+		CTZ[0] = BHL;
+		for (unsigned i = 1; i < BHN; ++i)
+		{
+			CNT[i] = cntd(i);
+			CLZ[i] = clzd(i);
+			CTZ[i] = ctzd(i);
+		}
+	}
+	inline int cntc(const unsigned& x)
+	{
+		return CNT[x & BHC] + CNT[(x >> BHL) & BHC];
+	}
+	inline ll cntcl(const ul& x)
+	{
+		return CNT[x & BHCL] + CNT[(x >> BHLL1) & BHCL] + CNT[(x >> BHLL2) & BHCL] + CNT[(x >> BHLL3) & BHCL];
+	}
+	inline int clzc(const unsigned& x)
+	{
+		if (x & LH)
+			return CLZ[x >> BHL] - BHL;
+		else
+			return CLZ[x];
+	}
+	inline ll clzcl(const ul& x)
+	{
+		if (x & LHL)
+			return clzc(x >> BHLL2);
+		else
+			return clzc(x) + BHLL2;
+	}
+	inline int ctzc(const unsigned& x)
+	{
+		if (x & RH)
+			return CTZ[x & RH];
+		else
+			return CTZ[x >> BHL] + BHL;
+	}
+	inline ll ctzcl(const ul& x)
+	{
+		if (x & RHL)
+			return ctzc(x);
+		else
+			return ctzc(x >> BHLL2) + BHLL2;
+	}
+}
+#define __builtin_popcount BGF::cntc
+#define __builtin_popcountll BGF::cntcl
+#define __builtin_ctzll BGF::ctzcl
+#if !defined(__GNUC__)
+#define __builtin_ctz BGF::ctzc
+#define __builtin_clz BGF::clzc
+#define __builtin_clzll BGF::clzcl
+#endif
+#elif !defined(__GNUC__)
+inline int __builtin_popcount(unsigned x)
 {
 	int ans = 0;
 	while (x)
@@ -973,7 +1118,7 @@ int __builtin_popcount(int x)
 	}
 	return ans;
 }
-ll __builtin_popcountl(ll x)
+inline ll __builtin_popcountll(ul x)
 {
 	ll ans = 0;
 	while (x)
@@ -984,7 +1129,7 @@ ll __builtin_popcountl(ll x)
 	}
 	return ans;
 }
-int __builtin_clz(int x)
+inline int __builtin_clz(unsigned x)
 {
 	int ans = 32;
 	while (x)
@@ -994,7 +1139,7 @@ int __builtin_clz(int x)
 	}
 	return ans;
 }
-ll __builtin_clzl(ll x)
+inline ll __builtin_ctzll(ul x)
 {
 	ll ans = 64;
 	while (x)
@@ -1004,8 +1149,10 @@ ll __builtin_clzl(ll x)
 	}
 	return ans;
 }
-int __builtin_ctz(int x)
+inline int __builtin_ctz(unsigned x)
 {
+	if (x == 0)
+		return 32;
 	int ans = 0;
 	while ((x & 1) == 0)
 	{
@@ -1014,8 +1161,10 @@ int __builtin_ctz(int x)
 	}
 	return ans;
 }
-ll __builtin_ctzl(ll x)
+inline ll __builtin_ctzll(ul x)
 {
+	if (x == 0)
+		return 64;
 	ll ans = 0;
 	while ((x & 1) == 0)
 	{
@@ -1026,24 +1175,40 @@ ll __builtin_ctzl(ll x)
 }
 #endif
 
+//#define FILES
+#define ONPC_FILES
+const string INPUT_FILE = "input.txt";
+const string OUTPUT_FILE = "output.txt";
 
+int another_main()
+{
+
+	return 0;
+}
 
 int main()
 {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
-	cout.tie(0);
-	cerr.tie(0);
+	FAST_IO;
+#ifdef FAST_BUILTINS
+	BGF::initialize();
+#endif
 #ifdef ONPC
-	freopen("input.txt", "rt", stdin);
-	freopen("output.txt", "wt", stdout);
+#ifdef ONPC_FILES
+	freopen(INPUT_FILE.c_str(), "rt", stdin);
+	freopen(OUTPUT_FILE.c_str(), "wt", stdout);
+#endif
 	auto start_time = clock();
 	cerr << setprecision(3) << fixed;
+#else
+#ifdef FILES
+	freopen(INPUT_FILE.c_str(), "rt", stdin);
+	freopen(OUTPUT_FILE.c_str(), "wt", stdout);
 #endif
-
+#endif
+	int AMR = another_main();
 #ifdef ONPC
 	auto end_time = clock();
 	cerr << "Execution time: " << (end_time - start_time) * (int)1e3 / CLOCKS_PER_SEC << " ms\n";
 #endif
-	return 0;
+	return AMR;
 }
