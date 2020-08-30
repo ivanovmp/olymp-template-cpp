@@ -1252,7 +1252,7 @@ namespace BGF // builtin gnu c++ functions
 #define __builtin_clzll BGF::clzdll
 #endif
 
-#define FILES
+// #define FILES
 #define ONPC_FILES
 const string INPUT_FILE = "input.txt";
 const string OUTPUT_FILE = "output.txt";
